@@ -3,9 +3,30 @@ import pandas as pd
 import joblib
 
 
-# Load model
+# CALLBACK FUNCTIONS
+
+def phone_service_callback():
+    if st.session_state["phone_service"] == "No":
+        st.session_state["multiple_lines"] = "No phone service"
+
+
+def no_internet_service_callback():
+    if st.session_state["internet_service"] == "No":
+        for key in [
+            "online_security",
+            "online_backup",
+            "device_protection",
+            "tech_support",
+            "streaming_tv",
+            "streaming_movies"
+        ]:
+            st.session_state[key] = "No internet service"
+
+# LOAD MODEL
+
 model = joblib.load("model/telco_churn_model.pkl")
 
+# PAGE CONFIGURATION
 
 st.set_page_config(
     page_title="Telco Customer Churn Prediction",
@@ -16,10 +37,7 @@ st.set_page_config(
 st.title("📊 Telco Customer Churn Prediction")
 st.write("Enter customer details to estimate their probability of churn.")
 
-
-# -------------------------
-# Customer information
-# -------------------------
+# CUSTOMER INFORMATION
 
 gender = st.selectbox(
     "Gender",
@@ -48,50 +66,81 @@ tenure = st.number_input(
     value=12
 )
 
+# PHONE SERVICE
+
 phone_service = st.selectbox(
     "Phone Service",
-    ["Yes", "No"]
+    ["Yes", "No"],
+    key="phone_service",
+    on_change=phone_service_callback
 )
+
+no_phone = phone_service == "No"
 
 multiple_lines = st.selectbox(
     "Multiple Lines",
-    ["Yes", "No", "No phone service"]
+    ["Yes", "No", "No phone service"],
+    key="multiple_lines",
+    disabled=no_phone
 )
+
+# INTERNET SERVICE
 
 internet_service = st.selectbox(
     "Internet Service",
-    ["DSL", "Fiber optic", "No"]
+    ["DSL", "Fiber optic", "No"],
+    key="internet_service",
+    on_change=no_internet_service_callback
 )
+
+no_internet = internet_service == "No"
+
+
+# INTERNET-DEPENDENT SERVICES
 
 online_security = st.selectbox(
     "Online Security",
-    ["Yes", "No", "No internet service"]
+    ["Yes", "No", "No internet service"],
+    key="online_security",
+    disabled=no_internet
 )
 
 online_backup = st.selectbox(
     "Online Backup",
-    ["Yes", "No", "No internet service"]
+    ["Yes", "No", "No internet service"],
+    key="online_backup",
+    disabled=no_internet
 )
 
 device_protection = st.selectbox(
     "Device Protection",
-    ["Yes", "No", "No internet service"]
+    ["Yes", "No", "No internet service"],
+    key="device_protection",
+    disabled=no_internet
 )
 
 tech_support = st.selectbox(
     "Tech Support",
-    ["Yes", "No", "No internet service"]
+    ["Yes", "No", "No internet service"],
+    key="tech_support",
+    disabled=no_internet
 )
 
 streaming_tv = st.selectbox(
     "Streaming TV",
-    ["Yes", "No", "No internet service"]
+    ["Yes", "No", "No internet service"],
+    key="streaming_tv",
+    disabled=no_internet
 )
 
 streaming_movies = st.selectbox(
     "Streaming Movies",
-    ["Yes", "No", "No internet service"]
+    ["Yes", "No", "No internet service"],
+    key="streaming_movies",
+    disabled=no_internet
 )
+
+# CONTRACT & BILLING
 
 contract = st.selectbox(
     "Contract",
@@ -120,9 +169,7 @@ monthly_charges = st.number_input(
 )
 
 
-# -------------------------
-# Create input DataFrame
-# -------------------------
+# CREATE INPUT DATAFRAME
 
 input_data = pd.DataFrame({
     "gender": [gender],
@@ -145,10 +192,7 @@ input_data = pd.DataFrame({
     "MonthlyCharges": [monthly_charges]
 })
 
-
-# -------------------------
-# Prediction
-# -------------------------
+# PREDICTION
 
 if st.button("Predict Churn"):
 
@@ -161,12 +205,13 @@ if st.button("Predict Churn"):
         f"{probability:.1%}"
     )
 
-    # Adjustable threshold
+    # Adjustable Threshold
+
     threshold = st.slider(
         "Decision Threshold",
         min_value=0.10,
         max_value=0.90,
-        value=0.50,
+        value=0.2711404287709699,
         step=0.05
     )
 

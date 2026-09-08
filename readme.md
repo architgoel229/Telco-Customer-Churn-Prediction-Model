@@ -335,13 +335,13 @@ The final model is combined with preprocessing and SMOTE into a single pipeline.
 Conceptually:
 
 ```text
-                 ┌── AdaBoost
-                 ├── Naive Bayes
+                                      ┌── AdaBoost
+                                      ├── Naive Bayes
 Input → Preprocess → SMOTE → Stacking ├── Random Forest
-                 ├── XGBoost
-                 └── Gradient Boosting
-                          ↓
-                   Logistic Regression
+                                      ├── XGBoost
+                                      └── Gradient Boosting
+                                             ↓
+                                        Logistic Regression
 ```
 
 ---
